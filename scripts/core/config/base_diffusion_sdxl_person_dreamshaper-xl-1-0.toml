@@ -1,76 +1,88 @@
-no_metadata = true
 async_upload = true
-bucket_no_upscale = true
-bucket_reso_steps = 64
+caption_extension = ".txt"
+train_data_dir = "img"
+no_metadata = true
+
 cache_latents = true
 cache_latents_to_disk = true
-caption_extension = ".txt"
-dynamo_backend = "no"
-enable_bucket = true
-gradient_checkpointing = true
-low_vram = false
 
-###### huggingface ######
+bucket_no_upscale = true
+bucket_reso_steps = 64
+enable_bucket = true
+max_bucket_reso = 2048
+min_bucket_reso = 256
+resolution = "1024,1024"
+
+mixed_precision = "bf16"
+save_precision = "bf16"
+no_half_vae = true
+full_fp16 = false
+full_bf16 = false
+gradient_checkpointing = false 
+low_vram = false
+xformers = true
+max_data_loader_n_workers = 8 
+
 huggingface_path_in_repo = "checkpoint"
 huggingface_repo_id = ""
 huggingface_repo_type = "model"
 huggingface_repo_visibility = "public"
 huggingface_token = ""
 
-max_bucket_reso = 2048
-max_data_loader_n_workers = 2
-max_grad_norm = 1
-max_token_length = 75
-min_bucket_reso = 256
-mixed_precision = "bf16"
-no_half_vae = true
+pretrained_model_name_or_path = ""
+
 output_dir = "test_sdxl_sd3"
 output_name = "last"
-pretrained_model_name_or_path = ""
-prior_loss_weight = 1
-resolution = "1024,1024"
+training_comment = "H100_optimized_min_loss"
 sample_prompts = ""
 sample_sampler = "euler_a"
 save_model_as = "safetensors"
-save_precision = "bf16"
-full_fp16 = false
-train_data_dir = "img"
-training_comment = ""
-xformers = true
+save_every_n_epochs = 1 
 
-###### steps and epochs ######
-save_every_n_epochs = 5
-
-###### loss function ######
-loss_type = "l2"
-
-###### batch size ######
-train_batch_size = 4
-gradient_accumulation_steps = 1
-
-###### optimizer ######
-optimizer_type = "adamw"
-optimizer_args = [ "betas=(0.9, 0.999)", "weight_decay=1e-04", "eps=1e-08",]
-unet_lr = 2e-5
-text_encoder_lr = 2e-6
-
-###### lr scheduler ######
-lr_scheduler = "cosine"
-lr_warmup_steps = 25
-
-###### noise offset ######
-noise_offset_type = "Original"
-noise_offset = 0.0357
-
-###### misc ######
-network_alpha = -1
-network_dim = -1
-network_module = "networks.lora"
-network_args = []
-network_dropout = 0
-caption_dropout_rate = 0
+prior_loss_weight = 1
+max_grad_norm = 1.0
+max_token_length = 225
 clip_skip = 1
+
+train_batch_size = 16  
+gradient_accumulation_steps = 2 
+
+loss_type = "huber"
+huber_c = 0.1  # Higher c value = more focus on reducing large errors
+huber_schedule = "snr"
+
+min_snr_gamma = 5  # Optimal for person/portrait training
+
+optimizer_type = "AdamW8bit"
+optimizer_args = [
+    "betas=(0.9, 0.999)",
+    "weight_decay=0.01",
+    "eps=1e-08"
+]
+
+learning_rate = 1e-5
+unet_lr = 1e-5
+text_encoder_lr = 5e-7
+
+lr_scheduler = "cosine_with_restarts"
+lr_scheduler_num_cycles = 3 
+lr_warmup_steps = 100
+
+noise_offset_type = "Multires"
+noise_offset = 0.05
+adaptive_noise_scale = 0.00357 
+
+network_module = "networks.lora"
+network_dim = 128 
+network_alpha = 64
+network_args = []
+network_dropout = 0.0
+caption_dropout_rate = 0.05
+
+scale_weight_norms = 1.0  # Prevent weight explosion
 max_timestep = 1000
-min_snr_gamma = 8
-scale_weight_norms = 5
-seed = 2951032222
+min_timestep = 0
+
+dynamo_backend = "no"
+
+seed = 42
