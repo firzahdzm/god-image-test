@@ -56,7 +56,8 @@ unet_lr = 1
 text_encoder_lr = 1
 
 ###### lr scheduler ######
-lr_scheduler = "constant"
+lr_scheduler = "cosine"
+lr_warmup_steps = 50
 
 ###### noise offset ######
 # noise_offset_type = "Original"
